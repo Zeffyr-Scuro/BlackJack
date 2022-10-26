@@ -1,10 +1,12 @@
 const player = {
-    name: "Zeff",
+    name: "John",
     chips: 200
 }
 
 let cards = []
 let sum = 0
+let win = false
+let amount = 0
 let hasBlackJack = false
 let isAlive = false
 let message = ""
@@ -12,6 +14,7 @@ const messageEl = document.getElementById("message-el")
 const sumEl = document.getElementById("sum-el")
 const cardsEl = document.getElementById("cards-el")
 const playerEl = document.getElementById("player-el")
+const betEl = document.getElementById("bet-el")
 
 playerEl.textContent = player.name + ": $" + player.chips
 
@@ -48,9 +51,15 @@ function renderGame() {
     } else if (sum === 21) {
         message = "You've got Blackjack!"
         hasBlackJack = true
+        win = true
+        amount = amount * 2
+        betEl.textContent = "Bet:"
+        updatePlayer(amount)
     } else {
         message = "You're out of the game!"
         isAlive = false
+        amount = 0
+        betEl.textContent = "Bet:"
     }
     messageEl.textContent = message
 }
@@ -62,5 +71,45 @@ function newCard() {
         sum += card
         cards.push(card)
         renderGame()        
+    }
+}
+
+function hold() {
+    const computerNum = Math.ceil(Math.random() * 11) + 10
+    if (isAlive && !hasBlackJack) {
+        if (sum > computerNum){
+            message = "You win!"
+            isAlive = false
+            win = true
+            amount = amount * 2
+            betEl.textContent = "Bet:"
+            updatePlayer(amount)
+        }else{
+            message = "You loss!"
+            isAlive = false
+            amount = 0
+            betEl.textContent = "Bet:"
+        }
+        messageEl.textContent = message
+    }
+}
+
+function bet(num) {
+    if (isAlive && !hasBlackJack){
+        if (num <= player.chips){
+            amount += num
+            updatePlayer(num)
+        }
+        betEl.textContent = "Bet: " + amount
+    }
+}
+
+function updatePlayer(num){
+    if (win){
+        amount = 0
+        win = false
+        playerEl.textContent = player.name + ": $" + (player.chips += num)
+    }else{
+        playerEl.textContent = player.name + ": $" + (player.chips -= num)
     }
 }
